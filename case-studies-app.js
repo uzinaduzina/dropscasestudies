@@ -586,6 +586,19 @@
     return cleanSectionLabel(text).replace(/["“”]+/g, "");
   }
 
+  function normalizeSectionContent(html) {
+    const trimmed = html.trim();
+    if (!trimmed) {
+      return "";
+    }
+
+    if (!/<(?:p|ul|ol|table|div|figure|blockquote|h\d)\b/i.test(trimmed)) {
+      return `<p>${trimmed}</p>`;
+    }
+
+    return trimmed;
+  }
+
   function htmlToText(html) {
     const parser = new window.DOMParser();
     return parser
@@ -667,9 +680,12 @@
 
     const cell = cells[0];
     const text = cell.textContent.replace(/\s+/g, " ").trim();
-    const hasMedia = Boolean(cell.querySelector("img, ul, ol, p, a"));
+    const hasMedia = Boolean(cell.querySelector("img, ul, ol, p, a, table, div, figure"));
+    const hasAnchor = Boolean(cell.querySelector(".anchor"));
+    const looksLikeLabel =
+      /:\s*$/u.test(text) || (Boolean(cell.querySelector("strong")) && text.length <= 120);
 
-    return Boolean(text) && !hasMedia;
+    return Boolean(text) && !hasMedia && !hasAnchor && looksLikeLabel;
   }
 
   function extractStudyDataFromTable(contentTable, meta, index) {
@@ -734,7 +750,7 @@
       if (cells.length === 1) {
         contentSections.push({
           title: pendingLabel,
-          content: cells[0].innerHTML.trim(),
+          content: normalizeSectionContent(cells[0].innerHTML.trim()),
         });
         pendingLabel = "";
       }
@@ -742,17 +758,26 @@
 
     const articleParts = [];
 
+    const [leadSection, ...otherSections] = contentSections;
+
+    if (leadSection) {
+      articleParts.push(`
+        <section class="article-section article-section-lead">
+          <div class="article-rich-block">${leadSection.content}</div>
+        </section>
+      `);
+    }
+
     if (images.length) {
       articleParts.push(
         `<div class="article-media-stack">${images.map((image) => image.html).join("")}</div>`
       );
     }
 
-    contentSections.forEach((section, index) => {
-      const isLeadSection = index === 0;
+    otherSections.forEach((section) => {
       articleParts.push(`
-        <section class="article-section${isLeadSection ? " article-section-lead" : ""}">
-          ${!isLeadSection && section.title ? `<h2>${section.title}</h2>` : ""}
+        <section class="article-section">
+          ${section.title ? `<h2>${section.title}</h2>` : ""}
           <div class="article-rich-block">${section.content}</div>
         </section>
       `);
@@ -941,6 +966,7 @@
     const study = studies.find((entry) => entry.id === studyId) || studies[0];
     const completionState = readCompletionState();
     const alreadyCompleted = Boolean(completionState[study.id]);
+    const hasKnownCountry = Boolean(study.countryLabel && study.countryLabel !== "Unknown");
 
     document.title = `${study.title} | DROPS`;
 
@@ -962,8 +988,9 @@
     hero.innerHTML = `
       <div class="detail-hero-inner">
         <div class="detail-hero-tag">
-          <span>${study.countryLabel || study.country}</span>
-          ${study.partner ? `<span>•</span><span>${study.partner}</span>` : ""}
+          ${hasKnownCountry ? `<span>${study.countryLabel}</span>` : ""}
+          ${hasKnownCountry && study.partner ? `<span>•</span>` : ""}
+          ${study.partner ? `<span>${study.partner}</span>` : ""}
         </div>
         <h1 class="detail-hero-title">${study.title}</h1>
         <p class="detail-hero-copy">${study.description}</p>
@@ -971,7 +998,7 @@
     `;
 
     metaRow.innerHTML = `
-      <span class="pill">${study.countryLabel || study.country}</span>
+      ${hasKnownCountry ? `<span class="pill">${study.countryLabel}</span>` : ""}
       <span class="pill pill-neutral">${study.readTime} ${ui.metaReadTime}</span>
       ${study.date ? `<span class="pill pill-neutral">${study.date}</span>` : ""}
     `;
