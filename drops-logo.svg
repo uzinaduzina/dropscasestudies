@@ -1,0 +1,30 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="80" height="80" rx="20" fill="#2F2A73"/>
+  <path
+    d="M38 6H74V22L64 32V44C64 51 60 57 56 64C53 69 51 71 51 74V80H74C77.314 80 80 77.314 80 74V6C80 2.686 77.314 0 74 0H38V6Z"
+    fill="url(#drops-gradient-main)"
+    fill-opacity="0.95"
+  />
+  <path
+    d="M32 22H40C48 22 54 27 59 35C63 41 69 43 72 48C74 51 74.5 55 72 61L74 67C75 70 74 73 72 76C69 79 64 80 58 80H36L28 72V58L26 51L28 45L27 39L29 31C29.8 26.2 31.4 23.2 32 22Z"
+    fill="#2F2A73"
+  />
+  <path
+    d="M40 6H72V20L62 30V42C62 48 58.5 54 55 60C52 65 50 69 50 72V80H56V72C56 69 58.2 65.2 61.6 59.4C65.1 53.5 69 46.9 69 40V33L78 24V6C78 2.686 75.314 0 72 0H40V6Z"
+    fill="url(#drops-gradient-soft)"
+    fill-opacity="0.42"
+  />
+  <defs>
+    <linearGradient id="drops-gradient-main" x1="38" y1="8" x2="78" y2="74" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#18C1BE"/>
+      <stop offset="0.36" stop-color="#7CB24B"/>
+      <stop offset="0.62" stop-color="#E4A15A"/>
+      <stop offset="0.8" stop-color="#2381C3"/>
+      <stop offset="1" stop-color="#0FB5A1"/>
+    </linearGradient>
+    <linearGradient id="drops-gradient-soft" x1="44" y1="12" x2="72" y2="74" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+</svg>

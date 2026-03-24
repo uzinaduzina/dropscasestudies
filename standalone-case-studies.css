@@ -74,6 +74,28 @@ select {
   margin-bottom: 18px;
 }
 
+.brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+  color: var(--ink);
+}
+
+.brand-logo {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  border-radius: 12px;
+  box-shadow: 0 10px 20px rgba(15, 38, 71, 0.1);
+}
+
+.brand-name {
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+
 .eyebrow {
   display: inline-flex;
   align-items: center;
@@ -320,6 +342,7 @@ select {
   justify-content: center;
   width: 22px;
   height: 22px;
+  flex: 0 0 22px;
   border-radius: 999px;
   background: rgba(15, 146, 131, 0.9);
   color: #ffffff;
@@ -419,6 +442,10 @@ select {
   font-weight: 800;
 }
 
+.study-card.is-completed .study-link {
+  color: rgba(78, 99, 135, 0.88);
+}
+
 .study-link-arrow {
   transition: transform 180ms ease;
 }
@@ -457,6 +484,10 @@ select {
   display: flex;
   align-items: center;
   gap: 16px;
+}
+
+.topbar-detail .brand-link {
+  margin-bottom: 0;
 }
 
 .back-link {
@@ -857,6 +888,10 @@ select {
 
   .toolbar {
     justify-content: stretch;
+  }
+
+  .topbar-detail .detail-top-actions {
+    flex-wrap: wrap;
   }
 
   .select-block {
