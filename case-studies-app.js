@@ -331,11 +331,13 @@
         const completionState = readCompletionState();
 
         const firstStudy = studies[0];
-        openFirstStudyLink.textContent = ui.openFirstStudy;
-        openFirstStudyLink.href = createUrl("./case-study.html", {
-          id: firstStudy ? firstStudy.id : null,
-          lang: currentLanguage,
-        });
+        if (openFirstStudyLink) {
+          openFirstStudyLink.textContent = ui.openFirstStudy;
+          openFirstStudyLink.href = createUrl("./case-study.html", {
+            id: firstStudy ? firstStudy.id : null,
+            lang: currentLanguage,
+          });
+        }
 
         studies.forEach((study) => {
           const countryName = getCountryName(currentLanguage, study);
@@ -396,11 +398,13 @@
         const completionState = readCompletionState();
 
         const firstStudy = fallbackStudies[0];
-        openFirstStudyLink.textContent = ui.openFirstStudy;
-        openFirstStudyLink.href = createUrl("./case-study.html", {
-          id: firstStudy ? firstStudy.id : null,
-          lang: currentLanguage,
-        });
+        if (openFirstStudyLink) {
+          openFirstStudyLink.textContent = ui.openFirstStudy;
+          openFirstStudyLink.href = createUrl("./case-study.html", {
+            id: firstStudy ? firstStudy.id : null,
+            lang: currentLanguage,
+          });
+        }
 
         fallbackStudies.forEach((study) => {
           const isCompleted = Boolean(completionState[study.id]);

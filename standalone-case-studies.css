@@ -96,16 +96,16 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px;
+  padding: 10px;
   border-radius: 22px;
   background: rgba(247, 251, 253, 0.95);
 }
 
 .project-logo {
   display: block;
-  width: clamp(180px, 26vw, 320px);
+  width: clamp(88px, 10vw, 116px);
   height: auto;
-  max-height: 70px;
+  max-height: 88px;
   object-fit: contain;
 }
 
@@ -209,11 +209,6 @@ select {
   gap: 18px;
   align-items: center;
   justify-content: space-between;
-}
-
-.cards-actions {
-  display: flex;
-  justify-content: flex-end;
 }
 
 .panel-title {
@@ -933,7 +928,7 @@ select {
   }
 
   .project-logo {
-    width: clamp(160px, 44vw, 240px);
+    width: clamp(76px, 18vw, 96px);
   }
 
   .select-block {
