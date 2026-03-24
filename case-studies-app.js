@@ -64,6 +64,9 @@
     ["#7f4cc9", "#173260"],
     ["#d15d68", "#7d2430"],
   ];
+  const countrySvgFiles = {
+    italy: "./italy.svg",
+  };
   let cardsRenderRequest = 0;
   let detailRenderRequest = 0;
 
@@ -80,7 +83,6 @@
         "M20,22 L42,15 L65,18 L82,28 L88,45 L82,62 L68,72 L50,78 L32,75 L18,62 L10,48 L15,32 L20,22",
       ],
     },
-    italy: null,
     default: {
       viewBox: "0 0 100 100",
       paths: ["M25,25 L50,15 L75,25 L85,50 L75,75 L50,85 L25,75 L15,50 L25,25"],
@@ -215,9 +217,11 @@
   }
 
   function renderCountryMap(study) {
+    const svgFile = countrySvgFiles[study.country];
     const shape = countryShapes[study.country] || countryShapes.default;
-    if (study.country === "italy") {
-      return '<div class="country-map"><img src="./italy.svg" alt="" /></div>';
+
+    if (svgFile) {
+      return `<div class="country-map"><img src="${svgFile}" alt="" /></div>`;
     }
 
     const paths = shape.paths
@@ -304,11 +308,7 @@
 
           card.innerHTML = `
             <div class="study-visual" style="background:${gradientStyle(study)}">
-              ${
-                study.imageSrc
-                  ? `<img class="study-visual-image" src="${study.imageSrc}" alt="${study.title}" loading="lazy" />`
-                  : renderCountryMap(study)
-              }
+              ${renderCountryMap(study)}
               <div class="country-badge">
                 <span>${iconMarkup(study.icon || "spark")}</span>
                 <span>${countryName}</span>
@@ -575,6 +575,20 @@
     return lower.replace(/\b\p{L}/gu, (letter) => letter.toUpperCase());
   }
 
+  function normalizeCountryKey(country) {
+    const normalized = country.toLowerCase().trim();
+    const knownCountries = {
+      spain: "spain",
+      italy: "italy",
+      romania: "romania",
+      croatia: "croatia",
+      cyprus: "cyprus",
+      ethiopia: "ethiopia",
+    };
+
+    return knownCountries[normalized] || "default";
+  }
+
   function createStudyId(index) {
     return `study-${String(index + 1).padStart(2, "0")}`;
   }
@@ -728,7 +742,7 @@
       articleHtml,
       imageSrc: images[0]?.src || "",
       partner: meta.partner,
-      country: countryLabel,
+      country: normalizeCountryKey(countryLabel),
       countryLabel,
       contact: meta.contact,
       date: meta.date,
