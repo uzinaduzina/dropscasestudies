@@ -72,6 +72,32 @@
     croatia: "./croatia.svg",
     cyprus: "./cyprus.svg",
   };
+  const actualStudyCountries = {
+    "study-01": { key: "hungary", label: "Hungary" },
+    "study-02": { key: "default", label: "Unknown" },
+    "study-03": { key: "default", label: "Unknown" },
+    "study-04": { key: "default", label: "Unknown" },
+    "study-05": { key: "ethiopia", label: "Ethiopia" },
+    "study-06": { key: "italy", label: "Italy" },
+    "study-07": { key: "spain", label: "Spain" },
+    "study-08": { key: "spain", label: "Spain" },
+    "study-09": { key: "croatia", label: "Croatia" },
+    "study-10": { key: "default", label: "Unknown" },
+    "study-11": { key: "romania", label: "Romania" },
+    "study-12": { key: "romania", label: "Romania" },
+    "study-13": { key: "default", label: "Unknown" },
+    "study-14": { key: "finland", label: "Finland" },
+    "study-15": { key: "default", label: "Unknown" },
+    "study-16": { key: "default", label: "Unknown" },
+    "study-17": { key: "default", label: "Unknown" },
+    "study-18": { key: "italy", label: "Italy" },
+    "study-19": { key: "default", label: "Unknown" },
+    "study-20": { key: "spain", label: "Spain" },
+    "study-21": { key: "croatia", label: "Croatia" },
+    "study-22": { key: "croatia", label: "Croatia" },
+    "study-23": { key: "romania", label: "Romania" },
+    "study-24": { key: "romania", label: "Romania" },
+  };
   let cardsRenderRequest = 0;
   let detailRenderRequest = 0;
 
@@ -598,6 +624,18 @@
     return `study-${String(index + 1).padStart(2, "0")}`;
   }
 
+  function getActualStudyCountry(studyId, fallbackCountryKey, fallbackCountryLabel) {
+    const override = actualStudyCountries[studyId];
+    if (override) {
+      return override;
+    }
+
+    return {
+      key: fallbackCountryKey,
+      label: fallbackCountryLabel,
+    };
+  }
+
   function extractTopicKey(text) {
     const match = text.match(/^(\d+)\./);
     return match ? `section-${match[1]}` : "section-1";
@@ -750,16 +788,20 @@
       ? toTitleCase(meta.country)
       : meta.country;
 
+    const studyId = createStudyId(index);
+    const fallbackCountryKey = normalizeCountryKey(countryLabel);
+    const actualCountry = getActualStudyCountry(studyId, fallbackCountryKey, countryLabel);
+
     return {
-      id: createStudyId(index),
+      id: studyId,
       index,
       title,
       description: truncateText(firstSectionText, 190),
       articleHtml,
       imageSrc: images[0]?.src || "",
       partner: meta.partner,
-      country: normalizeCountryKey(countryLabel),
-      countryLabel,
+      country: actualCountry.key,
+      countryLabel: actualCountry.label,
       contact: meta.contact,
       date: meta.date,
       topicKey,
