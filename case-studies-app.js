@@ -65,7 +65,12 @@
     ["#d15d68", "#7d2430"],
   ];
   const countrySvgFiles = {
+    ethiopia: "./ethiopia.svg",
     italy: "./italy.svg",
+    spain: "./spain.svg",
+    romania: "./romania.svg",
+    croatia: "./croatia.svg",
+    cyprus: "./cyprus.svg",
   };
   let cardsRenderRequest = 0;
   let detailRenderRequest = 0;
@@ -593,6 +598,11 @@
     return `study-${String(index + 1).padStart(2, "0")}`;
   }
 
+  function extractTopicKey(text) {
+    const match = text.match(/^(\d+)\./);
+    return match ? `section-${match[1]}` : "section-1";
+  }
+
   function parseMetaTable(table) {
     const rows = Array.from(table.querySelectorAll("tr")).map((row) =>
       Array.from(row.cells).map((cell) => cell.textContent.replace(/\s+/g, " ").trim())
@@ -632,11 +642,17 @@
     let pendingLabel = "";
     let titleSeen = false;
     let title = "";
+    let topicKey = "section-1";
 
     Array.from(contentTable.querySelectorAll("tr")).forEach((row) => {
       const cells = Array.from(row.cells);
       if (!cells.length) {
         return;
+      }
+
+      if (!titleSeen && isPureLabelRow(row)) {
+        const rawLabel = cells[0].textContent.replace(/\s+/g, " ").trim();
+        topicKey = extractTopicKey(rawLabel);
       }
 
       if (row.querySelector(".anchor")) {
@@ -746,6 +762,7 @@
       countryLabel,
       contact: meta.contact,
       date: meta.date,
+      topicKey,
       readTime: Math.max(4, Math.ceil((htmlToText(articleHtml).split(/\s+/u).filter(Boolean).length || 0) / 180)),
       icon: "spark",
     };
@@ -944,9 +961,16 @@
     moreStudiesTitle.textContent = ui.moreStudiesTitle;
 
     moreStudiesList.innerHTML = "";
-    studies.forEach((entry) => {
+    const relatedStudies = studies.filter(
+      (entry) => entry.id !== study.id && entry.topicKey === study.topicKey
+    );
+    const sidebarStudies = relatedStudies.length
+      ? relatedStudies
+      : studies.filter((entry) => entry.id !== study.id);
+
+    sidebarStudies.forEach((entry) => {
       const link = document.createElement("a");
-      link.className = `sidebar-link${entry.id === study.id ? " is-current" : ""}`;
+      link.className = "sidebar-link";
       link.href = createUrl("./case-study.html", { id: entry.id, lang: currentLanguage });
       link.innerHTML = `
         <span class="sidebar-link-title">${entry.title}</span>
