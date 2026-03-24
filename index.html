@@ -8,12 +8,19 @@
   </head>
   <body data-page="cards">
     <div class="page-shell">
-      <header class="topbar">
-        <div>
-          <p class="eyebrow" id="cards-eyebrow"></p>
-          <h1 class="hero-title" id="cards-title"></h1>
-          <p class="hero-copy" id="cards-copy"></p>
+      <section class="logo-strip" aria-label="Project logos">
+        <div class="logo-strip-track">
+          <a class="project-logo-link" href="./index.html" aria-label="DROPS">
+            <img class="project-logo" src="./drops-logo.svg" alt="DROPS logo" />
+          </a>
+          <div class="partner-logo-slot">EU logo</div>
+          <div class="partner-logo-slot">Partner logo</div>
+          <div class="partner-logo-slot">Partner logo</div>
         </div>
+      </section>
+
+      <header class="topbar topbar-simple">
+        <div></div>
 
         <div class="toolbar">
           <label class="select-block" for="cards-language-select">
@@ -24,15 +31,9 @@
       </header>
 
       <main class="content-stack">
-        <section class="panel panel-soft">
-          <div class="panel-row">
-            <div>
-              <h2 class="panel-title" id="filters-title"></h2>
-              <p class="panel-copy" id="filters-copy"></p>
-            </div>
-            <a class="ghost-link" href="./case-study.html" id="open-first-study-link"></a>
-          </div>
-          <div class="chip-row" id="category-filters"></div>
+        <section class="panel panel-soft cards-actions">
+          <a class="ghost-link" href="./case-study.html" id="open-first-study-link"></a>
+          <div class="chip-row hidden" id="category-filters"></div>
         </section>
 
         <section class="cards-grid" id="case-study-grid"></section>

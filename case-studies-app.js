@@ -296,26 +296,30 @@
     const grid = document.getElementById("case-study-grid");
     const openFirstStudyLink = document.getElementById("open-first-study-link");
 
-    eyebrow.textContent = ui.cardsEyebrow;
-    title.textContent = ui.cardsTitle;
-    copy.textContent = ui.cardsCopy;
-    languageLabel.textContent = ui.languageLabel;
-    filtersTitle.textContent = ui.filtersTitle;
-    filtersCopy.textContent = ui.filtersCopy;
-    emptyState.textContent = ui.noResults;
+    if (eyebrow) eyebrow.textContent = ui.cardsEyebrow;
+    if (title) title.textContent = ui.cardsTitle;
+    if (copy) copy.textContent = ui.cardsCopy;
+    if (languageLabel) languageLabel.textContent = ui.languageLabel;
+    if (filtersTitle) filtersTitle.textContent = ui.filtersTitle;
+    if (filtersCopy) filtersCopy.textContent = ui.filtersCopy;
+    if (emptyState) emptyState.textContent = ui.noResults;
 
-    createLanguageOptions(languageSelect, currentLanguage);
-    languageSelect.onchange = (event) => {
-      const nextLanguage = event.target.value;
-      setStoredLanguage(nextLanguage);
-      updateCurrentUrl({ lang: nextLanguage });
-      renderCardsPage();
-    };
+    if (languageSelect) {
+      createLanguageOptions(languageSelect, currentLanguage);
+      languageSelect.onchange = (event) => {
+        const nextLanguage = event.target.value;
+        setStoredLanguage(nextLanguage);
+        updateCurrentUrl({ lang: nextLanguage });
+        renderCardsPage();
+      };
+    }
 
-    filtersTitle.textContent = ui.cardsTitle;
-    filtersCopy.textContent = ui.cardsCopy;
-    filtersContainer.innerHTML = "";
-    filtersContainer.classList.add("hidden");
+    if (filtersTitle) filtersTitle.textContent = ui.cardsTitle;
+    if (filtersCopy) filtersCopy.textContent = ui.cardsCopy;
+    if (filtersContainer) {
+      filtersContainer.innerHTML = "";
+      filtersContainer.classList.add("hidden");
+    }
     grid.innerHTML = "";
 
     loadStudyCollection(currentLanguage)

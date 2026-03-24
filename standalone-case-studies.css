@@ -74,26 +74,59 @@ select {
   margin-bottom: 18px;
 }
 
-.brand-link {
+.logo-strip {
+  margin-bottom: 22px;
+  padding: 14px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(12px);
+}
+
+.logo-strip-track {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  min-height: 86px;
+  flex-wrap: wrap;
+}
+
+.project-logo-link {
   display: inline-flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 14px;
-  color: var(--ink);
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 22px;
+  background: rgba(247, 251, 253, 0.95);
 }
 
-.brand-logo {
-  width: 44px;
-  height: 44px;
-  flex: 0 0 44px;
-  border-radius: 12px;
-  box-shadow: 0 10px 20px rgba(15, 38, 71, 0.1);
+.project-logo {
+  display: block;
+  width: clamp(180px, 26vw, 320px);
+  height: auto;
+  max-height: 70px;
+  object-fit: contain;
 }
 
-.brand-name {
-  font-size: 1rem;
-  font-weight: 900;
-  letter-spacing: 0.12em;
+.partner-logo-slot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 124px;
+  min-height: 64px;
+  padding: 0 18px;
+  border: 1px dashed rgba(23, 50, 96, 0.2);
+  border-radius: 18px;
+  background: rgba(247, 251, 253, 0.75);
+  color: var(--ink-soft);
+  font-size: 0.88rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.topbar-simple {
+  margin-bottom: 18px;
 }
 
 .eyebrow {
@@ -176,6 +209,11 @@ select {
   gap: 18px;
   align-items: center;
   justify-content: space-between;
+}
+
+.cards-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 
 .panel-title {
@@ -484,10 +522,6 @@ select {
   display: flex;
   align-items: center;
   gap: 16px;
-}
-
-.topbar-detail .brand-link {
-  margin-bottom: 0;
 }
 
 .back-link {
@@ -892,6 +926,14 @@ select {
 
   .topbar-detail .detail-top-actions {
     flex-wrap: wrap;
+  }
+
+  .logo-strip-track {
+    gap: 14px;
+  }
+
+  .project-logo {
+    width: clamp(160px, 44vw, 240px);
   }
 
   .select-block {
