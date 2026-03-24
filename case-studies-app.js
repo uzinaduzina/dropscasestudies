@@ -55,6 +55,16 @@
     },
   };
   const markdownBundleCache = new Map();
+  const studyCollectionCache = new Map();
+  const cardGradients = [
+    ["#0f9283", "#173260"],
+    ["#1172bd", "#0b4577"],
+    ["#16834d", "#145c37"],
+    ["#cc7a2f", "#8e3e14"],
+    ["#7f4cc9", "#173260"],
+    ["#d15d68", "#7d2430"],
+  ];
+  let cardsRenderRequest = 0;
   let detailRenderRequest = 0;
 
   const countryShapes = {
@@ -145,6 +155,9 @@
   }
 
   function getCountryName(language, study) {
+    if (study.countryLabel) {
+      return study.countryLabel;
+    }
     const ui = getUi(language);
     return ui.countries[study.country] || study.country;
   }
@@ -197,7 +210,8 @@
   }
 
   function gradientStyle(study) {
-    return `linear-gradient(135deg, ${study.gradient[0]}, ${study.gradient[1]})`;
+    const gradient = study.gradient || cardGradients[study.index % cardGradients.length];
+    return `linear-gradient(135deg, ${gradient[0]}, ${gradient[1]})`;
   }
 
   function renderCountryMap(study) {
@@ -223,9 +237,9 @@
   }
 
   function renderCardsPage() {
+    const requestId = ++cardsRenderRequest;
     const params = getSearchParams();
     const currentLanguage = getLanguageFromParams(params);
-    const currentCategory = params.get("category") || "all";
     const ui = getUi(currentLanguage);
     setStoredLanguage(currentLanguage);
     setHtmlLanguage(currentLanguage);
@@ -260,65 +274,126 @@
       renderCardsPage();
     };
 
-    const firstStudy = data.studies[0];
-    openFirstStudyLink.textContent = ui.openFirstStudy;
-    openFirstStudyLink.href = createUrl("./case-study.html", {
-      id: firstStudy ? firstStudy.id : null,
-      lang: currentLanguage,
-    });
-
+    filtersTitle.textContent = ui.cardsTitle;
+    filtersCopy.textContent = ui.cardsCopy;
     filtersContainer.innerHTML = "";
-    const categoryEntries = Object.entries(ui.categories);
-    categoryEntries.forEach(([key, label]) => {
-      const button = createChipButton(label, key === currentCategory, () => {
-        updateCurrentUrl({ category: key, lang: currentLanguage });
-        renderCardsPage();
-      });
-      filtersContainer.appendChild(button);
-    });
-
-    const filteredStudies =
-      currentCategory === "all"
-        ? data.studies
-        : data.studies.filter((study) => study.category === currentCategory);
-
+    filtersContainer.classList.add("hidden");
     grid.innerHTML = "";
 
-    filteredStudies.forEach((study) => {
-      const translation = getStudyTranslation(study, currentLanguage);
-      const countryName = getCountryName(currentLanguage, study);
-      const card = document.createElement("a");
-      card.className = "study-card";
-      card.href = createUrl("./case-study.html", {
-        id: study.id,
-        lang: currentLanguage,
+    loadStudyCollection(currentLanguage)
+      .then((studies) => {
+        if (requestId !== cardsRenderRequest) {
+          return;
+        }
+
+        const firstStudy = studies[0];
+        openFirstStudyLink.textContent = ui.openFirstStudy;
+        openFirstStudyLink.href = createUrl("./case-study.html", {
+          id: firstStudy ? firstStudy.id : null,
+          lang: currentLanguage,
+        });
+
+        studies.forEach((study) => {
+          const countryName = getCountryName(currentLanguage, study);
+          const card = document.createElement("a");
+          card.className = "study-card";
+          card.href = createUrl("./case-study.html", {
+            id: study.id,
+            lang: currentLanguage,
+          });
+
+          card.innerHTML = `
+            <div class="study-visual" style="background:${gradientStyle(study)}">
+              ${
+                study.imageSrc
+                  ? `<img class="study-visual-image" src="${study.imageSrc}" alt="${study.title}" loading="lazy" />`
+                  : renderCountryMap(study)
+              }
+              <div class="country-badge">
+                <span>${iconMarkup(study.icon || "spark")}</span>
+                <span>${countryName}</span>
+              </div>
+            </div>
+            <div class="study-body">
+              <div class="pill-row">
+                <span class="pill">${countryName}</span>
+                <span class="pill pill-neutral">${study.readTime} ${ui.metaReadTime}</span>
+              </div>
+              <h2 class="study-title">${study.title}</h2>
+              <p class="study-description">${study.description}</p>
+              <div class="study-footer">
+                <span class="study-link">${ui.readCaseStudy}<span class="study-link-arrow">→</span></span>
+              </div>
+            </div>
+          `;
+
+          grid.appendChild(card);
+        });
+
+        emptyState.classList.toggle("hidden", studies.length > 0);
+      })
+      .catch(() => {
+        if (requestId !== cardsRenderRequest) {
+          return;
+        }
+
+        const fallbackStudies = data.studies.map((study, index) => {
+          const translation = getStudyTranslation(study, currentLanguage);
+          return {
+            id: study.id,
+            index,
+            icon: study.icon,
+            gradient: study.gradient,
+            title: translation.title,
+            description: translation.description,
+            readTime: study.readTime,
+            country: study.country,
+            countryLabel: getCountryName(currentLanguage, study),
+          };
+        });
+
+        const firstStudy = fallbackStudies[0];
+        openFirstStudyLink.textContent = ui.openFirstStudy;
+        openFirstStudyLink.href = createUrl("./case-study.html", {
+          id: firstStudy ? firstStudy.id : null,
+          lang: currentLanguage,
+        });
+
+        fallbackStudies.forEach((study) => {
+          const card = document.createElement("a");
+          card.className = "study-card";
+          card.href = createUrl("./case-study.html", {
+            id: study.id,
+            lang: currentLanguage,
+          });
+
+          card.innerHTML = `
+            <div class="study-visual" style="background:${gradientStyle(study)}">
+              ${renderCountryMap(study)}
+              <div class="country-badge">
+                <span>${iconMarkup(study.icon || "spark")}</span>
+                <span>${study.countryLabel}</span>
+              </div>
+            </div>
+            <div class="study-body">
+              <div class="pill-row">
+                <span class="pill">${study.countryLabel}</span>
+                <span class="pill pill-neutral">${study.readTime} ${ui.metaReadTime}</span>
+              </div>
+              <h2 class="study-title">${study.title}</h2>
+              <p class="study-description">${study.description}</p>
+              <div class="study-footer">
+                <span class="study-link">${ui.readCaseStudy}<span class="study-link-arrow">→</span></span>
+              </div>
+            </div>
+          `;
+
+          grid.appendChild(card);
+        });
+
+        emptyState.classList.toggle("hidden", fallbackStudies.length > 0);
       });
 
-      card.innerHTML = `
-        <div class="study-visual" style="background:${gradientStyle(study)}">
-          ${renderCountryMap(study)}
-          <div class="country-badge">
-            <span>${iconMarkup(study.icon)}</span>
-            <span>${countryName}</span>
-          </div>
-        </div>
-        <div class="study-body">
-          <div class="pill-row">
-            <span class="pill">${ui.categories[study.category]}</span>
-            <span class="pill pill-neutral">${study.readTime} ${ui.metaReadTime}</span>
-          </div>
-          <h2 class="study-title">${translation.title}</h2>
-          <p class="study-description">${translation.description}</p>
-          <div class="study-footer">
-            <span class="study-link">${ui.readCaseStudy}<span class="study-link-arrow">→</span></span>
-          </div>
-        </div>
-      `;
-
-      grid.appendChild(card);
-    });
-
-    emptyState.classList.toggle("hidden", filteredStudies.length > 0);
     setHtmlLanguage(currentLanguage);
   }
 
@@ -467,6 +542,201 @@
     });
   }
 
+  function cleanSectionLabel(text) {
+    return text
+      .replace(/\s+/g, " ")
+      .replace(/^\d+(?:\.\d+)*(?:\.\d+)?\s*/u, "")
+      .replace(/^[-:.\s]+/u, "")
+      .replace(/[:.\s]+$/u, "")
+      .trim();
+  }
+
+  function cleanInlineLabel(text) {
+    return cleanSectionLabel(text).replace(/["“”]+/g, "");
+  }
+
+  function htmlToText(html) {
+    const parser = new window.DOMParser();
+    return parser
+      .parseFromString(`<div>${html}</div>`, "text/html")
+      .body.textContent.replace(/\s+/g, " ")
+      .trim();
+  }
+
+  function truncateText(text, maxLength) {
+    if (text.length <= maxLength) {
+      return text;
+    }
+    return `${text.slice(0, maxLength).replace(/\s+\S*$/u, "").trim()}…`;
+  }
+
+  function toTitleCase(text) {
+    const lower = text.toLowerCase();
+    return lower.replace(/\b\p{L}/gu, (letter) => letter.toUpperCase());
+  }
+
+  function createStudyId(index) {
+    return `study-${String(index + 1).padStart(2, "0")}`;
+  }
+
+  function parseMetaTable(table) {
+    const rows = Array.from(table.querySelectorAll("tr")).map((row) =>
+      Array.from(row.cells).map((cell) => cell.textContent.replace(/\s+/g, " ").trim())
+    );
+
+    const partner = rows[0]?.[1] || "";
+    const country = rows[1]?.[1] || "";
+    const contact = rows[2]?.[1] || "";
+    const date = rows[3]?.[1] || "";
+
+    return {
+      partner,
+      country,
+      contact,
+      date,
+    };
+  }
+
+  function isPureLabelRow(row) {
+    const cells = Array.from(row.cells);
+    if (cells.length !== 1) {
+      return false;
+    }
+
+    const cell = cells[0];
+    const text = cell.textContent.replace(/\s+/g, " ").trim();
+    const hasMedia = Boolean(cell.querySelector("img, ul, ol, p, a"));
+
+    return Boolean(text) && !hasMedia;
+  }
+
+  function extractStudyDataFromTable(contentTable, meta, index) {
+    const images = [];
+    const contentSections = [];
+    const criteria = [];
+    let criteriaTitle = "";
+    let pendingLabel = "";
+    let titleSeen = false;
+    let title = "";
+
+    Array.from(contentTable.querySelectorAll("tr")).forEach((row) => {
+      const cells = Array.from(row.cells);
+      if (!cells.length) {
+        return;
+      }
+
+      if (row.querySelector(".anchor")) {
+        title = cleanInlineLabel(cells[0].textContent);
+        titleSeen = true;
+        pendingLabel = "";
+        return;
+      }
+
+      if (!titleSeen) {
+        return;
+      }
+
+      if (isPureLabelRow(row)) {
+        pendingLabel = cleanSectionLabel(cells[0].textContent);
+        return;
+      }
+
+      if (row.querySelector("img")) {
+        images.push(
+          ...Array.from(row.querySelectorAll("img")).map(
+            (image) => ({
+              src: image.getAttribute("src") || "",
+              html: `<figure class="article-figure">${image.outerHTML}</figure>`,
+            })
+          )
+        );
+        pendingLabel = "";
+        return;
+      }
+
+      if (cells.length === 2) {
+        criteriaTitle = criteriaTitle || pendingLabel || "Selection criteria";
+        criteria.push({
+          label: cleanInlineLabel(cells[0].textContent),
+          content: cells[1].innerHTML.trim(),
+        });
+        return;
+      }
+
+      if (cells.length === 1) {
+        contentSections.push({
+          title: pendingLabel,
+          content: cells[0].innerHTML.trim(),
+        });
+        pendingLabel = "";
+      }
+    });
+
+    const articleParts = [];
+
+    if (images.length) {
+      articleParts.push(
+        `<div class="article-media-stack">${images.map((image) => image.html).join("")}</div>`
+      );
+    }
+
+    contentSections.forEach((section, index) => {
+      const isLeadSection = index === 0;
+      articleParts.push(`
+        <section class="article-section${isLeadSection ? " article-section-lead" : ""}">
+          ${!isLeadSection && section.title ? `<h2>${section.title}</h2>` : ""}
+          <div class="article-rich-block">${section.content}</div>
+        </section>
+      `);
+    });
+
+    if (criteria.length) {
+      articleParts.splice(
+        Math.min(articleParts.length, 2),
+        0,
+        `
+          <section class="article-section article-section-criteria">
+            <h2>${criteriaTitle}</h2>
+            <div class="criteria-grid">
+              ${criteria
+                .map(
+                  (entry) => `
+                    <article class="criteria-card">
+                      <h3 class="criteria-card-title">${entry.label}</h3>
+                      <div class="criteria-card-content">${entry.content}</div>
+                    </article>
+                  `
+                )
+                .join("")}
+            </div>
+          </section>
+        `
+      );
+    }
+
+    const articleHtml = articleParts.join("");
+    const firstSectionText = htmlToText(contentSections[0]?.content || "");
+    const countryLabel = meta.country && meta.country === meta.country.toUpperCase()
+      ? toTitleCase(meta.country)
+      : meta.country;
+
+    return {
+      id: createStudyId(index),
+      index,
+      title,
+      description: truncateText(firstSectionText, 190),
+      articleHtml,
+      imageSrc: images[0]?.src || "",
+      partner: meta.partner,
+      country: countryLabel,
+      countryLabel,
+      contact: meta.contact,
+      date: meta.date,
+      readTime: Math.max(4, Math.ceil((htmlToText(articleHtml).split(/\s+/u).filter(Boolean).length || 0) / 180)),
+      icon: "spark",
+    };
+  }
+
   function extractStudyMarkup(markdown, anchorId) {
     const anchorNeedle = `id="${anchorId}"`;
     const anchorIndex = markdown.indexOf(anchorNeedle);
@@ -498,38 +768,59 @@
     return markdown.slice(startIndex, endIndex).trim();
   }
 
+  function buildStudyCollection(markdown, imageMap) {
+    const html = normalizeImagePaths(convertMarkdownTablesToHtml(markdown), imageMap);
+    const parser = new window.DOMParser();
+    const doc = parser.parseFromString(`<div>${html}</div>`, "text/html");
+    const tables = Array.from(doc.querySelectorAll("table"));
+    const studies = [];
+    let pendingMeta = { partner: "", country: "", contact: "", date: "" };
+
+    tables.forEach((table) => {
+      if (table.classList.contains("markdown-table")) {
+        pendingMeta = parseMetaTable(table);
+        return;
+      }
+
+      if (!table.querySelector(".anchor")) {
+        return;
+      }
+
+      studies.push(extractStudyDataFromTable(table, pendingMeta, studies.length));
+      pendingMeta = { partner: "", country: "", contact: "", date: "" };
+    });
+
+    return studies;
+  }
+
+  async function loadStudyCollection(language) {
+    const cacheKey = isValidLanguage(language) ? language : data.defaultLocale;
+
+    if (!studyCollectionCache.has(cacheKey)) {
+      studyCollectionCache.set(
+        cacheKey,
+        loadMarkdownBundle(cacheKey).then(({ markdown, imageMap }) =>
+          buildStudyCollection(markdown, imageMap)
+        )
+      );
+    }
+
+    return studyCollectionCache.get(cacheKey);
+  }
+
   async function loadStudyMarkup(studyId, language) {
-    const localizedAnchors = studyAnchors[language] || studyAnchors[data.defaultLocale];
-    const anchorId = localizedAnchors ? localizedAnchors[studyId] : null;
-    if (!anchorId) {
-      return null;
-    }
-
-    const { markdown, imageMap } = await loadMarkdownBundle(language);
-    const extracted = extractStudyMarkup(markdown, anchorId);
-
-    if (!extracted) {
-      return null;
-    }
-
-    return normalizeImagePaths(convertMarkdownTablesToHtml(extracted), imageMap);
+    const studies = await loadStudyCollection(language);
+    return studies.find((study) => study.id === studyId) || null;
   }
 
   async function renderDetailPage() {
     const requestId = ++detailRenderRequest;
     const params = getSearchParams();
     const currentLanguage = getLanguageFromParams(params);
-    const studyId = params.get("id") || data.studies[0]?.id;
-    const study = data.studies.find((entry) => entry.id === studyId) || data.studies[0];
     const ui = getUi(currentLanguage);
-    const translation = getStudyTranslation(study, currentLanguage);
-    const countryName = getCountryName(currentLanguage, study);
-    const completionState = readCompletionState();
-    const alreadyCompleted = Boolean(completionState[study.id]);
 
     setStoredLanguage(currentLanguage);
     setHtmlLanguage(currentLanguage);
-    document.title = `${translation.title} | DROPS`;
 
     const hero = document.getElementById("detail-hero");
     const metaRow = document.getElementById("detail-meta-row");
@@ -545,6 +836,41 @@
     const detailLanguageLabel = document.getElementById("detail-language-label");
     const detailLanguageSelect = document.getElementById("detail-language-select");
 
+    let studies;
+    try {
+      studies = await loadStudyCollection(currentLanguage);
+    } catch (error) {
+      studies = data.studies.map((entry, index) => {
+        const translation = getStudyTranslation(entry, currentLanguage);
+        return {
+          id: entry.id,
+          index,
+          title: translation.title,
+          description: translation.description,
+          articleHtml: "",
+          readTime: entry.readTime,
+          country: getCountryName(currentLanguage, entry),
+          countryLabel: getCountryName(currentLanguage, entry),
+          partner: "",
+          date: "",
+          icon: entry.icon,
+          gradient: entry.gradient,
+          fallbackSections: translation.sections,
+        };
+      });
+    }
+
+    if (requestId !== detailRenderRequest) {
+      return;
+    }
+
+    const studyId = params.get("id") || studies[0]?.id;
+    const study = studies.find((entry) => entry.id === studyId) || studies[0];
+    const completionState = readCompletionState();
+    const alreadyCompleted = Boolean(completionState[study.id]);
+
+    document.title = `${study.title} | DROPS`;
+
     backLink.textContent = `← ${ui.backToCards}`;
     backLink.href = createUrl("./index.html", { lang: currentLanguage });
 
@@ -557,23 +883,24 @@
       renderDetailPage();
     };
 
-    hero.style.background = gradientStyle(study);
+    hero.style.background = study.imageSrc
+      ? `linear-gradient(135deg, rgba(23, 50, 96, 0.72), rgba(15, 146, 131, 0.6)), url("${study.imageSrc}") center/cover`
+      : gradientStyle(study);
     hero.innerHTML = `
       <div class="detail-hero-inner">
         <div class="detail-hero-tag">
-          <span>${ui.categories[study.category]}</span>
-          <span>•</span>
-          <span>${countryName}</span>
+          <span>${study.countryLabel || study.country}</span>
+          ${study.partner ? `<span>•</span><span>${study.partner}</span>` : ""}
         </div>
-        <h1 class="detail-hero-title">${translation.title}</h1>
-        <p class="detail-hero-copy">${translation.description}</p>
+        <h1 class="detail-hero-title">${study.title}</h1>
+        <p class="detail-hero-copy">${study.description}</p>
       </div>
     `;
 
     metaRow.innerHTML = `
-      <span class="pill">${ui.metaCategory}: ${ui.categories[study.category]}</span>
+      <span class="pill">${study.countryLabel || study.country}</span>
       <span class="pill pill-neutral">${study.readTime} ${ui.metaReadTime}</span>
-      <span class="pill pill-neutral">+${study.points} ${ui.metaPoints}</span>
+      ${study.date ? `<span class="pill pill-neutral">${study.date}</span>` : ""}
     `;
 
     languageRow.innerHTML = "";
@@ -590,23 +917,12 @@
       languageRow.appendChild(button);
     });
 
-    try {
-      const studyMarkup = await loadStudyMarkup(study.id, currentLanguage);
-      if (requestId !== detailRenderRequest) {
-        return;
-      }
-
-      if (studyMarkup) {
-        content.innerHTML = studyMarkup;
-      } else {
-        renderBlocks(content, translation.sections);
-      }
-    } catch (error) {
-      console.warn("Falling back to embedded case study content.", error);
-      if (requestId !== detailRenderRequest) {
-        return;
-      }
-      renderBlocks(content, translation.sections);
+    if (study.articleHtml) {
+      content.innerHTML = study.articleHtml;
+    } else if (study.fallbackSections) {
+      renderBlocks(content, study.fallbackSections);
+    } else {
+      content.innerHTML = "";
     }
 
     completionTitle.textContent = ui.completionTitle;
@@ -614,14 +930,13 @@
     moreStudiesTitle.textContent = ui.moreStudiesTitle;
 
     moreStudiesList.innerHTML = "";
-    data.studies.forEach((entry) => {
-      const entryTranslation = getStudyTranslation(entry, currentLanguage);
+    studies.forEach((entry) => {
       const link = document.createElement("a");
       link.className = `sidebar-link${entry.id === study.id ? " is-current" : ""}`;
       link.href = createUrl("./case-study.html", { id: entry.id, lang: currentLanguage });
       link.innerHTML = `
-        <span class="sidebar-link-title">${entryTranslation.title}</span>
-        <span class="sidebar-link-copy">${entryTranslation.description}</span>
+        <span class="sidebar-link-title">${entry.title}</span>
+        <span class="sidebar-link-copy">${entry.description}</span>
       `;
       moreStudiesList.appendChild(link);
     });

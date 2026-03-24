@@ -224,15 +224,15 @@ select {
 
 .cards-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 22px;
 }
 
 .study-card {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(200px, 0.95fr) 1.3fr;
-  min-height: 280px;
+  grid-template-columns: 1fr;
+  min-height: 100%;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.72);
   border-radius: var(--radius-xl);
@@ -253,6 +253,14 @@ select {
   position: relative;
   overflow: hidden;
   color: #ffffff;
+  min-height: 210px;
+}
+
+.study-visual-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .study-visual::after {
@@ -301,8 +309,8 @@ select {
 .study-body {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px;
+  gap: 14px;
+  padding: 20px;
 }
 
 .pill-row {
@@ -331,15 +339,19 @@ select {
 
 .study-title {
   margin: 0;
-  font-size: 1.45rem;
-  line-height: 1.18;
+  font-size: 1.12rem;
+  line-height: 1.24;
   font-weight: 900;
 }
 
 .study-description {
   margin: 0;
   color: var(--ink-soft);
-  line-height: 1.65;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .study-footer {
@@ -691,6 +703,12 @@ select {
   line-height: 1.5;
 }
 
+@media (max-width: 1280px) {
+  .cards-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 980px) {
   .topbar,
   .panel-row,
@@ -708,11 +726,7 @@ select {
   }
 
   .cards-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .study-card {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .study-visual {
@@ -742,5 +756,9 @@ select {
 
   .detail-hero-title {
     font-size: clamp(1.9rem, 9vw, 3rem);
+  }
+
+  .cards-grid {
+    grid-template-columns: 1fr;
   }
 }
