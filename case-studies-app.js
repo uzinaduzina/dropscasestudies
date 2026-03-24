@@ -8,6 +8,54 @@
   }
 
   const supportedLanguages = new Set(data.locales.map((locale) => locale.code));
+  const markdownFiles = {
+    en: "./Translations/good-practices-collection-english.md",
+    ro: "./Translations/good-practices-collection-romanian.md",
+    it: "./Translations/good-practices-collection-italian.md",
+    es: "./Translations/good-practices-collection-spanish.md",
+    el: "./Translations/good-practices-collection-greek.md",
+    hr: "./Translations/good-practices-collection-croatian.md",
+  };
+  const studyAnchors = {
+    en: {
+      "warka-tower": "_fgmhmlncf5no",
+      "rifo-circular-fashion": "_yoodjpn2q0n4",
+      "flipped-learning-adult-education": "_yx6zeb51f5tm",
+      "matematica-live": "_bcf9f6dfw8mk",
+    },
+    ro: {
+      "warka-tower": "_fandfouo3gzi",
+      "rifo-circular-fashion": "_sf7cn9ceei7j",
+      "flipped-learning-adult-education": "_1kv850lpivfy",
+      "matematica-live": "_jujydkib6cdp",
+    },
+    it: {
+      "warka-tower": "_heading=h.jl8hrl5zlicd",
+      "rifo-circular-fashion": "_heading=h.q6yx4lu0lpea",
+      "flipped-learning-adult-education": "_heading=h.zcty5t630yot",
+      "matematica-live": "_heading=h.601kqy7kttt",
+    },
+    es: {
+      "warka-tower": "_Toc194516796",
+      "rifo-circular-fashion": "_Toc194516797",
+      "flipped-learning-adult-education": "_Toc194516810",
+      "matematica-live": "_Toc194516811",
+    },
+    el: {
+      "warka-tower": "_fgmhmlncf5no",
+      "rifo-circular-fashion": "_yoodjpn2q0n4",
+      "flipped-learning-adult-education": "_yx6zeb51f5tm",
+      "matematica-live": "_bcf9f6dfw8mk",
+    },
+    hr: {
+      "warka-tower": "_fnc6ad7sw1rh",
+      "rifo-circular-fashion": "_jyz85zpajwdi",
+      "flipped-learning-adult-education": "_z06x753m33uu",
+      "matematica-live": "_nd22pkz0i1to",
+    },
+  };
+  const markdownBundleCache = new Map();
+  let detailRenderRequest = 0;
 
   const countryShapes = {
     spain: {
@@ -303,7 +351,172 @@
     });
   }
 
-  function renderDetailPage() {
+  function getMarkdownFile(language) {
+    return markdownFiles[language] || markdownFiles[data.defaultLocale];
+  }
+
+  async function fetchMarkdownText(language) {
+    const file = getMarkdownFile(language);
+
+    if (!markdownBundleCache.has(file)) {
+      markdownBundleCache.set(
+        file,
+        window.fetch(file).then((response) => {
+          if (!response.ok) {
+            throw new Error(`Unable to load ${file}`);
+          }
+          return response.text();
+        })
+      );
+    }
+
+    return markdownBundleCache.get(file);
+  }
+
+  function collectImageSources(markdown) {
+    return Array.from(markdown.matchAll(/<img\b[^>]*\bsrc="([^"]+)"/g), (match) => match[1]);
+  }
+
+  async function loadMarkdownBundle(language) {
+    const cacheKey = isValidLanguage(language) ? language : data.defaultLocale;
+
+    if (!markdownBundleCache.has(cacheKey)) {
+      markdownBundleCache.set(
+        cacheKey,
+        Promise.all([fetchMarkdownText(cacheKey), fetchMarkdownText("en")]).then(
+          ([markdown, englishMarkdown]) => {
+            const englishSources = collectImageSources(englishMarkdown);
+            const localizedSources = collectImageSources(markdown);
+            const imageMap = new Map();
+
+            localizedSources.forEach((source, index) => {
+              imageMap.set(source, englishSources[index] || source);
+            });
+
+            return { markdown, imageMap };
+          }
+        )
+      );
+    }
+
+    return markdownBundleCache.get(cacheKey);
+  }
+
+  function formatInlineMarkdown(text) {
+    return text
+      .trim()
+      .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+      .replace(/\*(.+?)\*/g, "<em>$1</em>")
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
+  }
+
+  function isMarkdownTableLine(line) {
+    return /^\|.*\|\s*$/.test(line.trim());
+  }
+
+  function isMarkdownSeparatorLine(line) {
+    return /^\|\s*[-:| ]+\|\s*$/.test(line.trim());
+  }
+
+  function convertMarkdownTableBlock(block) {
+    const rows = block
+      .split("\n")
+      .map((line) => line.trim())
+      .filter((line) => line && isMarkdownTableLine(line) && !isMarkdownSeparatorLine(line))
+      .map((line) =>
+        line
+          .replace(/^\|/, "")
+          .replace(/\|$/, "")
+          .split("|")
+          .map((cell) => `<td>${formatInlineMarkdown(cell)}</td>`)
+          .join("")
+      );
+
+    return `<table class="markdown-table"><tbody>${rows
+      .map((row) => `<tr>${row}</tr>`)
+      .join("")}</tbody></table>`;
+  }
+
+  function convertMarkdownTablesToHtml(content) {
+    return content
+      .split(/\n{2,}/)
+      .map((block) => {
+        const trimmed = block.trim();
+        if (!trimmed) {
+          return "";
+        }
+
+        const lines = trimmed.split("\n").filter((line) => line.trim());
+        const isTableBlock =
+          lines.length > 1 &&
+          lines.every((line) => isMarkdownTableLine(line) || isMarkdownSeparatorLine(line));
+
+        return isTableBlock ? convertMarkdownTableBlock(trimmed) : trimmed;
+      })
+      .filter(Boolean)
+      .join("\n\n");
+  }
+
+  function normalizeImagePaths(content, imageMap) {
+    return content.replace(/(<img\b[^>]*\bsrc=")([^"]+)(")/g, (match, prefix, source, suffix) => {
+      let nextSource = imageMap.get(source) || source;
+      if (!/^(?:[a-z]+:|\/)/i.test(nextSource)) {
+        nextSource = `./Translations/${nextSource.replace(/^\.?\//, "")}`;
+      }
+      return `${prefix}${nextSource}${suffix}`;
+    });
+  }
+
+  function extractStudyMarkup(markdown, anchorId) {
+    const anchorNeedle = `id="${anchorId}"`;
+    const anchorIndex = markdown.indexOf(anchorNeedle);
+
+    if (anchorIndex === -1) {
+      return null;
+    }
+
+    const partnerMarker = "| Partner Organization Name |";
+    const previousAnchorIndex = markdown.lastIndexOf('<span id="', anchorIndex - 1);
+    const partnerIndex = markdown.lastIndexOf(partnerMarker, anchorIndex);
+    const tableIndex = markdown.lastIndexOf("<table", anchorIndex);
+
+    let startIndex = tableIndex >= 0 ? tableIndex : anchorIndex;
+    if (partnerIndex !== -1 && partnerIndex > previousAnchorIndex) {
+      startIndex = partnerIndex;
+    }
+
+    const nextAnchorIndex = markdown.indexOf('<span id="', anchorIndex + 1);
+    let endIndex = nextAnchorIndex === -1 ? markdown.length : nextAnchorIndex;
+
+    if (nextAnchorIndex !== -1) {
+      const nextPartnerIndex = markdown.lastIndexOf(partnerMarker, nextAnchorIndex);
+      if (nextPartnerIndex !== -1 && nextPartnerIndex > anchorIndex) {
+        endIndex = nextPartnerIndex;
+      }
+    }
+
+    return markdown.slice(startIndex, endIndex).trim();
+  }
+
+  async function loadStudyMarkup(studyId, language) {
+    const localizedAnchors = studyAnchors[language] || studyAnchors[data.defaultLocale];
+    const anchorId = localizedAnchors ? localizedAnchors[studyId] : null;
+    if (!anchorId) {
+      return null;
+    }
+
+    const { markdown, imageMap } = await loadMarkdownBundle(language);
+    const extracted = extractStudyMarkup(markdown, anchorId);
+
+    if (!extracted) {
+      return null;
+    }
+
+    return normalizeImagePaths(convertMarkdownTablesToHtml(extracted), imageMap);
+  }
+
+  async function renderDetailPage() {
+    const requestId = ++detailRenderRequest;
     const params = getSearchParams();
     const currentLanguage = getLanguageFromParams(params);
     const studyId = params.get("id") || data.studies[0]?.id;
@@ -377,7 +590,24 @@
       languageRow.appendChild(button);
     });
 
-    renderBlocks(content, translation.sections);
+    try {
+      const studyMarkup = await loadStudyMarkup(study.id, currentLanguage);
+      if (requestId !== detailRenderRequest) {
+        return;
+      }
+
+      if (studyMarkup) {
+        content.innerHTML = studyMarkup;
+      } else {
+        renderBlocks(content, translation.sections);
+      }
+    } catch (error) {
+      console.warn("Falling back to embedded case study content.", error);
+      if (requestId !== detailRenderRequest) {
+        return;
+      }
+      renderBlocks(content, translation.sections);
+    }
 
     completionTitle.textContent = ui.completionTitle;
     completionCopy.textContent = ui.completionCopy;

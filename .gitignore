@@ -1,2 +1,10 @@
 .DS_Store
-Translations/
+Translations/*
+!Translations/good-practices-collection-english.md
+!Translations/good-practices-collection-romanian.md
+!Translations/good-practices-collection-italian.md
+!Translations/good-practices-collection-spanish.md
+!Translations/good-practices-collection-greek.md
+!Translations/good-practices-collection-croatian.md
+!Translations/good-practices-collection-english-media/
+!Translations/good-practices-collection-english-media/**

@@ -533,6 +533,7 @@ select {
 
 .article-content {
   color: var(--ink);
+  overflow-wrap: anywhere;
 }
 
 .article-content h2 {
@@ -561,6 +562,58 @@ select {
 
 .article-content strong {
   color: var(--ink);
+}
+
+.article-content a {
+  color: var(--ocean);
+  text-decoration: underline;
+}
+
+.article-content table {
+  width: 100%;
+  margin: 28px 0;
+  border-collapse: collapse;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.article-content th,
+.article-content td {
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  vertical-align: top;
+  text-align: left;
+  color: var(--ink-soft);
+  line-height: 1.75;
+}
+
+.article-content th {
+  color: var(--ink);
+  background: rgba(17, 114, 189, 0.04);
+}
+
+.article-content .markdown-table td:first-child {
+  width: 32%;
+  color: var(--ink);
+  font-weight: 800;
+  background: rgba(23, 50, 96, 0.04);
+}
+
+.article-content img {
+  display: block;
+  max-width: 100%;
+  height: auto !important;
+  margin: 0 auto;
+  border-radius: 16px;
+}
+
+.article-content p:last-child,
+.article-content ul:last-child,
+.article-content ol:last-child,
+.article-content table:last-child {
+  margin-bottom: 0;
 }
 
 .primary-button {
