@@ -324,6 +324,8 @@
           return;
         }
 
+        const completionState = readCompletionState();
+
         const firstStudy = studies[0];
         openFirstStudyLink.textContent = ui.openFirstStudy;
         openFirstStudyLink.href = createUrl("./case-study.html", {
@@ -333,8 +335,9 @@
 
         studies.forEach((study) => {
           const countryName = getCountryName(currentLanguage, study);
+          const isCompleted = Boolean(completionState[study.id]);
           const card = document.createElement("a");
-          card.className = "study-card";
+          card.className = `study-card${isCompleted ? " is-completed" : ""}`;
           card.href = createUrl("./case-study.html", {
             id: study.id,
             lang: currentLanguage,
@@ -343,6 +346,7 @@
           card.innerHTML = `
             <div class="study-visual" style="background:${gradientStyle(study)}">
               ${renderCountryMap(study)}
+              ${isCompleted ? `<div class="study-status-badge" aria-label="${ui.completionDone}"><span class="study-status-check">✓</span><span>${ui.completionDone}</span></div>` : ""}
               <div class="country-badge">
                 <span>${iconMarkup(study.icon || "spark")}</span>
                 <span>${countryName}</span>
@@ -385,6 +389,7 @@
             countryLabel: getCountryName(currentLanguage, study),
           };
         });
+        const completionState = readCompletionState();
 
         const firstStudy = fallbackStudies[0];
         openFirstStudyLink.textContent = ui.openFirstStudy;
@@ -394,8 +399,9 @@
         });
 
         fallbackStudies.forEach((study) => {
+          const isCompleted = Boolean(completionState[study.id]);
           const card = document.createElement("a");
-          card.className = "study-card";
+          card.className = `study-card${isCompleted ? " is-completed" : ""}`;
           card.href = createUrl("./case-study.html", {
             id: study.id,
             lang: currentLanguage,
@@ -404,6 +410,7 @@
           card.innerHTML = `
             <div class="study-visual" style="background:${gradientStyle(study)}">
               ${renderCountryMap(study)}
+              ${isCompleted ? `<div class="study-status-badge" aria-label="${ui.completionDone}"><span class="study-status-check">✓</span><span>${ui.completionDone}</span></div>` : ""}
               <div class="country-badge">
                 <span>${iconMarkup(study.icon || "spark")}</span>
                 <span>${study.countryLabel}</span>
@@ -935,6 +942,7 @@
     const completionCopy = document.getElementById("completion-copy");
     const completionButton = document.getElementById("completion-button");
     const completionHelper = document.getElementById("completion-helper");
+    const nextStudyLink = document.getElementById("next-study-link");
     const moreStudiesTitle = document.getElementById("more-studies-title");
     const moreStudiesList = document.getElementById("more-studies-list");
     const completionSection = completionTitle.closest("section");
@@ -973,6 +981,8 @@
 
     const studyId = params.get("id") || studies[0]?.id;
     const study = studies.find((entry) => entry.id === studyId) || studies[0];
+    const currentStudyIndex = studies.findIndex((entry) => entry.id === study.id);
+    const nextStudy = currentStudyIndex >= 0 ? studies[currentStudyIndex + 1] || null : null;
     const completionState = readCompletionState();
     const alreadyCompleted = Boolean(completionState[study.id]);
     const hasKnownCountry = Boolean(study.countryLabel);
@@ -1036,6 +1046,10 @@
 
     completionTitle.textContent = ui.completionTitle;
     completionCopy.textContent = ui.completionCopy;
+    nextStudyLink.textContent = ui.nextStudy || "Go to next case study";
+    nextStudyLink.href = nextStudy
+      ? createUrl("./case-study.html", { id: nextStudy.id, lang: currentLanguage })
+      : createUrl("./index.html", { lang: currentLanguage });
     moreStudiesTitle.textContent = ui.moreStudiesTitle;
 
     moreStudiesList.innerHTML = "";
@@ -1065,6 +1079,7 @@
       if (completionSection) {
         completionSection.classList.add("detail-sidebar-progress");
       }
+      nextStudyLink.classList.toggle("hidden", !(alreadyCompleted && nextStudy));
 
       if (alreadyCompleted) {
         completionButton.textContent = ui.completionDone;

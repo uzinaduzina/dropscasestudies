@@ -244,12 +244,22 @@ select {
   transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
 }
 
+.study-card.is-completed {
+  border-color: rgba(15, 146, 131, 0.28);
+  background: rgba(255, 255, 255, 0.74);
+}
+
 .study-card:hover,
 .study-card:focus-visible {
   transform: translateY(-4px);
   border-color: rgba(17, 114, 189, 0.2);
   box-shadow: var(--shadow-strong);
   outline: none;
+}
+
+.study-card.is-completed:hover,
+.study-card.is-completed:focus-visible {
+  border-color: rgba(15, 146, 131, 0.38);
 }
 
 .study-visual {
@@ -266,6 +276,11 @@ select {
   background: linear-gradient(180deg, transparent, rgba(8, 18, 41, 0.42));
 }
 
+.study-card.is-completed .study-visual,
+.study-card.is-completed .study-body {
+  opacity: 0.88;
+}
+
 .country-badge {
   position: absolute;
   left: 18px;
@@ -280,6 +295,36 @@ select {
   backdrop-filter: blur(10px);
   font-size: 0.82rem;
   font-weight: 700;
+}
+
+.study-status-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.study-status-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(15, 146, 131, 0.9);
+  color: #ffffff;
+  font-size: 0.88rem;
+  line-height: 1;
 }
 
 .country-map {
@@ -709,6 +754,30 @@ select {
   cursor: pointer;
   transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
   box-shadow: 0 16px 28px rgba(22, 131, 77, 0.24);
+}
+
+.secondary-button {
+  display: inline-flex;
+  width: 100%;
+  min-height: 48px;
+  margin-top: 14px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 18px;
+  border: 1px solid rgba(15, 146, 131, 0.24);
+  border-radius: 16px;
+  background: rgba(15, 146, 131, 0.08);
+  color: var(--teal);
+  font-weight: 800;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.secondary-button:hover,
+.secondary-button:focus-visible {
+  transform: translateY(-1px);
+  border-color: rgba(15, 146, 131, 0.34);
+  box-shadow: 0 12px 20px rgba(15, 146, 131, 0.12);
+  outline: none;
 }
 
 .primary-button:hover,
