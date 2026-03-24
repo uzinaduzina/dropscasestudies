@@ -1033,9 +1033,9 @@
     const relatedStudies = studies.filter(
       (entry) => entry.id !== study.id && entry.topicKey === study.topicKey
     );
-    const sidebarStudies = relatedStudies.length
+    const sidebarStudies = (relatedStudies.length
       ? relatedStudies
-      : studies.filter((entry) => entry.id !== study.id);
+      : studies.filter((entry) => entry.id !== study.id)).slice(0, 4);
 
     sidebarStudies.forEach((entry) => {
       const link = document.createElement("a");
