@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DROPS Case Studies</title>
+    <link rel="stylesheet" href="./standalone-case-studies.css" />
+  </head>
+  <body data-page="cards">
+    <div class="page-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow" id="cards-eyebrow"></p>
+          <h1 class="hero-title" id="cards-title"></h1>
+          <p class="hero-copy" id="cards-copy"></p>
+        </div>
+
+        <div class="toolbar">
+          <label class="select-block" for="cards-language-select">
+            <span id="cards-language-label"></span>
+            <select id="cards-language-select"></select>
+          </label>
+        </div>
+      </header>
+
+      <main class="content-stack">
+        <section class="panel panel-soft">
+          <div class="panel-row">
+            <div>
+              <h2 class="panel-title" id="filters-title"></h2>
+              <p class="panel-copy" id="filters-copy"></p>
+            </div>
+            <a class="ghost-link" href="./case-study.html" id="open-first-study-link"></a>
+          </div>
+          <div class="chip-row" id="category-filters"></div>
+        </section>
+
+        <section class="cards-grid" id="case-study-grid"></section>
+        <p class="empty-state hidden" id="cards-empty-state"></p>
+      </main>
+    </div>
+
+    <script src="./case-studies-data.js"></script>
+    <script src="./case-studies-app.js"></script>
+  </body>
+</html>

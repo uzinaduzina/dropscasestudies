@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DROPS Case Study</title>
+    <link rel="stylesheet" href="./standalone-case-studies.css" />
+  </head>
+  <body data-page="detail">
+    <div class="reading-progress">
+      <div class="reading-progress-bar" id="reading-progress-bar"></div>
+    </div>
+
+    <div class="page-shell page-shell-detail">
+      <header class="topbar topbar-detail">
+        <div class="detail-top-actions">
+          <a class="back-link" id="back-to-cards-link" href="./index.html"></a>
+        </div>
+
+        <div class="toolbar">
+          <label class="select-block" for="detail-language-select">
+            <span id="detail-language-label"></span>
+            <select id="detail-language-select"></select>
+          </label>
+        </div>
+      </header>
+
+      <main class="content-stack">
+        <section class="detail-hero" id="detail-hero"></section>
+
+        <section class="detail-layout">
+          <article class="panel detail-article">
+            <div class="detail-meta-row" id="detail-meta-row"></div>
+            <div class="detail-language-row" id="detail-language-row"></div>
+            <div class="article-content" id="detail-content"></div>
+          </article>
+
+          <aside class="detail-sidebar">
+            <section class="panel panel-soft">
+              <h2 class="panel-title" id="completion-title"></h2>
+              <p class="panel-copy" id="completion-copy"></p>
+              <button class="primary-button" id="completion-button" type="button"></button>
+              <p class="helper-text" id="completion-helper"></p>
+            </section>
+
+            <section class="panel panel-soft">
+              <h2 class="panel-title" id="more-studies-title"></h2>
+              <div class="sidebar-links" id="more-studies-list"></div>
+            </section>
+          </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="./case-studies-data.js"></script>
+    <script src="./case-studies-app.js"></script>
+  </body>
+</html>
