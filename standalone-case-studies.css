@@ -494,11 +494,12 @@ select {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 300px);
   gap: 24px;
-  align-items: start;
+  align-items: stretch;
 }
 
 .detail-article {
   padding: 32px;
+  align-self: start;
 }
 
 .detail-sidebar {
@@ -506,6 +507,7 @@ select {
   gap: 18px;
   width: min(100%, 300px);
   justify-self: end;
+  align-self: stretch;
   align-content: start;
 }
 
@@ -594,7 +596,7 @@ select {
 .criteria-grid {
   display: grid;
   gap: 16px;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .criteria-card {
@@ -802,6 +804,12 @@ select {
 
   .detail-sidebar {
     position: static;
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  .criteria-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -826,6 +834,10 @@ select {
   }
 
   .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .criteria-grid {
     grid-template-columns: 1fr;
   }
 }
