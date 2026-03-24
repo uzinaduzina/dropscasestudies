@@ -96,17 +96,20 @@ select {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px;
+  min-width: 150px;
+  min-height: 112px;
+  padding: 14px 18px;
   border-radius: 22px;
   background: rgba(247, 251, 253, 0.95);
 }
 
 .project-logo {
   display: block;
-  width: clamp(88px, 10vw, 116px);
+  width: clamp(110px, 12vw, 150px);
   height: auto;
-  max-height: 88px;
+  max-height: 120px;
   object-fit: contain;
+  object-position: center;
 }
 
 .partner-logo-slot {
@@ -928,7 +931,7 @@ select {
   }
 
   .project-logo {
-    width: clamp(76px, 18vw, 96px);
+    width: clamp(96px, 20vw, 118px);
   }
 
   .select-block {
