@@ -579,7 +579,8 @@
   function cleanSectionLabel(text) {
     return text
       .replace(/\s+/g, " ")
-      .replace(/^\d+(?:\.\d+)*(?:\.\d+)?\s*/u, "")
+      .replace(/^\d+(?:\.\d+)+(?:\s+|$)/u, "")
+      .replace(/^\d+[.)]\s*/u, "")
       .replace(/^[-:.\s]+/u, "")
       .replace(/[:.\s]+$/u, "")
       .trim();
