@@ -65,7 +65,10 @@
     ["#d15d68", "#7d2430"],
   ];
   const countrySvgFiles = {
+    europe: "./europe.svg",
     ethiopia: "./ethiopia.svg",
+    finland: "./finland.svg",
+    hungary: "./hungary.svg",
     italy: "./italy.svg",
     spain: "./spain.svg",
     romania: "./romania.svg",
@@ -74,24 +77,24 @@
   };
   const actualStudyCountries = {
     "study-01": { key: "hungary", label: "Hungary" },
-    "study-02": { key: "default", label: "Unknown" },
-    "study-03": { key: "default", label: "Unknown" },
-    "study-04": { key: "default", label: "Unknown" },
+    "study-02": { key: "europe", label: "Europe" },
+    "study-03": { key: "europe", label: "Europe" },
+    "study-04": { key: "europe", label: "Europe" },
     "study-05": { key: "ethiopia", label: "Ethiopia" },
     "study-06": { key: "italy", label: "Italy" },
     "study-07": { key: "spain", label: "Spain" },
     "study-08": { key: "spain", label: "Spain" },
     "study-09": { key: "croatia", label: "Croatia" },
-    "study-10": { key: "default", label: "Unknown" },
+    "study-10": { key: "europe", label: "Europe" },
     "study-11": { key: "romania", label: "Romania" },
     "study-12": { key: "romania", label: "Romania" },
-    "study-13": { key: "default", label: "Unknown" },
+    "study-13": { key: "europe", label: "Europe" },
     "study-14": { key: "finland", label: "Finland" },
-    "study-15": { key: "default", label: "Unknown" },
-    "study-16": { key: "default", label: "Unknown" },
-    "study-17": { key: "default", label: "Unknown" },
+    "study-15": { key: "europe", label: "Europe" },
+    "study-16": { key: "europe", label: "Europe" },
+    "study-17": { key: "europe", label: "Europe" },
     "study-18": { key: "italy", label: "Italy" },
-    "study-19": { key: "default", label: "Unknown" },
+    "study-19": { key: "europe", label: "Europe" },
     "study-20": { key: "spain", label: "Spain" },
     "study-21": { key: "croatia", label: "Croatia" },
     "study-22": { key: "croatia", label: "Croatia" },
@@ -622,12 +625,15 @@
   function normalizeCountryKey(country) {
     const normalized = country.toLowerCase().trim();
     const knownCountries = {
+      europe: "europe",
       spain: "spain",
       italy: "italy",
       romania: "romania",
       croatia: "croatia",
       cyprus: "cyprus",
       ethiopia: "ethiopia",
+      finland: "finland",
+      hungary: "hungary",
     };
 
     return knownCountries[normalized] || "default";
@@ -930,6 +936,8 @@
     const completionHelper = document.getElementById("completion-helper");
     const moreStudiesTitle = document.getElementById("more-studies-title");
     const moreStudiesList = document.getElementById("more-studies-list");
+    const completionSection = completionTitle.closest("section");
+    const moreStudiesSection = moreStudiesTitle.closest("section");
     const backLink = document.getElementById("back-to-cards-link");
     const detailLanguageLabel = document.getElementById("detail-language-label");
     const detailLanguageSelect = document.getElementById("detail-language-select");
@@ -966,7 +974,7 @@
     const study = studies.find((entry) => entry.id === studyId) || studies[0];
     const completionState = readCompletionState();
     const alreadyCompleted = Boolean(completionState[study.id]);
-    const hasKnownCountry = Boolean(study.countryLabel && study.countryLabel !== "Unknown");
+    const hasKnownCountry = Boolean(study.countryLabel);
 
     document.title = `${study.title} | DROPS`;
 
@@ -1050,6 +1058,13 @@
 
     function syncCompletionButton(progressValue) {
       const unlocked = progressValue >= 80;
+      if (moreStudiesSection) {
+        moreStudiesSection.classList.toggle("hidden", alreadyCompleted);
+      }
+      if (completionSection) {
+        completionSection.classList.add("detail-sidebar-progress");
+      }
+
       if (alreadyCompleted) {
         completionButton.textContent = ui.completionDone;
         completionButton.disabled = true;
