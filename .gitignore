@@ -8,3 +8,10 @@ Translations/*
 !Translations/good-practices-collection-croatian.md
 !Translations/good-practices-collection-english-media/
 !Translations/good-practices-collection-english-media/**
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
