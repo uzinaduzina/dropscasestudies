@@ -89,7 +89,17 @@ select {
   align-items: center;
   gap: 18px;
   min-height: 86px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+}
+
+.logo-strip-support {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: center;
+  gap: 20px;
+  min-width: 0;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
 }
 
 .project-logo-link {
@@ -114,12 +124,25 @@ select {
 
 .partner-logos-strip {
   display: block;
-  width: min(100%, 760px);
+  flex: 1 1 720px;
+  width: 720px;
+  max-width: 100%;
   min-width: 0;
   height: auto;
   max-height: 92px;
   object-fit: contain;
   object-position: left center;
+}
+
+.eu-logo-strip {
+  display: block;
+  flex: 0 0 280px;
+  width: 280px;
+  max-width: 100%;
+  height: auto;
+  max-height: 82px;
+  object-fit: contain;
+  object-position: right center;
 }
 
 .topbar-simple {
@@ -922,12 +945,25 @@ select {
 
   .logo-strip-track {
     gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .logo-strip-support {
+    gap: 14px;
+    flex-basis: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
   }
 
   .project-logo {
     width: 150px;
     min-width: 150px;
     max-width: 150px;
+  }
+
+  .eu-logo-strip {
+    flex-basis: auto;
+    width: 240px;
   }
 
   .select-block {
