@@ -152,23 +152,12 @@ select {
 .topbar-branding {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 0;
   min-width: 0;
 }
 
 .topbar-branding-detail {
   min-width: 0;
-}
-
-.topbar-branding-image {
-  display: block;
-  width: 72px;
-  height: 72px;
-  border-radius: 22px;
-  object-fit: cover;
-  object-position: center;
-  box-shadow: var(--shadow-soft);
-  flex: 0 0 auto;
 }
 
 .topbar-heading {
@@ -1009,12 +998,6 @@ select {
 
   .topbar-branding {
     width: 100%;
-  }
-
-  .topbar-branding-image {
-    width: 60px;
-    height: 60px;
-    border-radius: 18px;
   }
 
   .topbar-heading {
