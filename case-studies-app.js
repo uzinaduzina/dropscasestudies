@@ -2,6 +2,9 @@
   const data = window.CASE_STUDIES_DATA;
   const LANGUAGE_STORAGE_KEY = "drops-case-studies-language";
   const COMPLETION_STORAGE_KEY = "drops-case-study-completion";
+  const ANALYTICS_CLIENT_KEY = "drops-cs-analytics-client-id";
+  const ANALYTICS_ENDPOINT = "https://drops-cs-analytics.mztjvntwqx.workers.dev";
+  const pageTrackState = new Set();
 
   if (!data) {
     return;
@@ -162,6 +165,72 @@
     return null;
   }
 
+  function getAnalyticsClientId() {
+    try {
+      const existing = window.localStorage.getItem(ANALYTICS_CLIENT_KEY);
+      if (existing) {
+        return existing;
+      }
+      const nextId =
+        (window.crypto && typeof window.crypto.randomUUID === "function"
+          ? window.crypto.randomUUID()
+          : `client-${Date.now()}-${Math.random().toString(16).slice(2)}`);
+      window.localStorage.setItem(ANALYTICS_CLIENT_KEY, nextId);
+      return nextId;
+    } catch (error) {
+      return `client-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    }
+  }
+
+  function sendAnalyticsEvent(type, payload) {
+    if (!ANALYTICS_ENDPOINT) {
+      return;
+    }
+
+    const body = JSON.stringify({
+      type,
+      clientId: getAnalyticsClientId(),
+      site: "cs",
+      path: window.location.pathname,
+      href: window.location.href,
+      userAgent: window.navigator.userAgent,
+      timestamp: new Date().toISOString(),
+      ...payload,
+    });
+
+    const trackUrl = `${ANALYTICS_ENDPOINT}/track`;
+
+    try {
+      if (window.navigator.sendBeacon) {
+        const blob = new Blob([body], { type: "application/json" });
+        const accepted = window.navigator.sendBeacon(trackUrl, blob);
+        if (accepted) {
+          return;
+        }
+      }
+    } catch (error) {
+      // Fall back to fetch below.
+    }
+
+    window
+      .fetch(trackUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        mode: "cors",
+        keepalive: true,
+        body,
+      })
+      .catch(() => null);
+  }
+
+  function trackPageOnce(key, type, payload) {
+    if (pageTrackState.has(key)) {
+      return;
+    }
+    pageTrackState.add(key);
+    sendAnalyticsEvent(type, payload);
+  }
+
   function getSearchParams() {
     return new URLSearchParams(window.location.search);
   }
@@ -283,6 +352,9 @@
     setHtmlLanguage(currentLanguage);
 
     document.title = `${ui.cardsTitle} | DROPS`;
+    trackPageOnce("cards-page", "cards_view", {
+      language: currentLanguage,
+    });
 
     const title = document.getElementById("cards-title");
     const eyebrow = document.getElementById("cards-eyebrow");
@@ -996,6 +1068,13 @@
     const hasKnownCountry = Boolean(study.countryLabel);
 
     document.title = `${study.title} | DROPS`;
+    trackPageOnce(`study-page:${study.id}`, "study_view", {
+      language: currentLanguage,
+      studyId: study.id,
+      studyTitle: study.title,
+      topicKey: study.topicKey,
+      country: study.countryLabel || "",
+    });
 
     backLink.textContent = `← ${ui.backToCards}`;
     backLink.href = createUrl("./index.html", { lang: currentLanguage });
@@ -1116,6 +1195,13 @@
       if (alreadyCompleted || progressValue < 80) {
         return;
       }
+      sendAnalyticsEvent("study_complete", {
+        language: currentLanguage,
+        studyId: study.id,
+        studyTitle: study.title,
+        topicKey: study.topicKey,
+        country: study.countryLabel || "",
+      });
       const nextState = readCompletionState();
       nextState[study.id] = true;
       writeCompletionState(nextState);

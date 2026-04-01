@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DROPS Analytics Admin</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <meta
+      name="description"
+      content="Password-protected analytics dashboard for DROPS case studies."
+    />
+    <link rel="icon" type="image/png" href="./drops-logo.png" />
+    <link rel="shortcut icon" href="./drops-logo.png" />
+    <link rel="apple-touch-icon" href="./drops-logo.png" />
+    <link rel="stylesheet" href="./standalone-case-studies.css?v=20260401-admin" />
+  </head>
+  <body data-page="admin">
+    <div class="page-shell">
+      <section class="logo-strip" aria-label="Project logos">
+        <div class="logo-strip-track">
+          <a class="project-logo-link" href="./index.html" aria-label="DROPS">
+            <img class="project-logo" src="./drops-logo.png" alt="DROPS logo" />
+          </a>
+          <div class="logo-strip-support">
+            <img
+              class="partner-logos-strip"
+              src="./drops-logos-1-2048x242.png"
+              alt="DROPS partner logos"
+            />
+            <img
+              class="eu-logo-strip"
+              src="./en-co-funded-by-the-eu-pos.png"
+              alt="Co-Funded by the European Union"
+            />
+          </div>
+        </div>
+      </section>
+
+      <header class="topbar topbar-simple">
+        <div class="topbar-branding">
+          <h1 class="topbar-heading">DROPS Case Studies Analytics</h1>
+        </div>
+      </header>
+
+      <main class="content-stack">
+        <section class="panel panel-soft admin-login-panel" id="admin-login-panel">
+          <h2 class="panel-title">Admin access</h2>
+          <p class="panel-copy">
+            Enter the admin password to view live usage statistics for the case studies site.
+          </p>
+          <form class="admin-login-form" id="admin-login-form">
+            <label class="select-block" for="admin-password">
+              <span>Password</span>
+              <input id="admin-password" class="admin-password-input" type="password" autocomplete="current-password" />
+            </label>
+            <button class="primary-button" type="submit">Open analytics</button>
+          </form>
+          <p class="helper-text hidden" id="admin-error"></p>
+        </section>
+
+        <section class="hidden" id="admin-dashboard">
+          <div class="admin-dashboard-top">
+            <div>
+              <h2 class="panel-title">Live activity overview</h2>
+              <p class="panel-copy" id="admin-last-updated"></p>
+            </div>
+            <div class="admin-actions">
+              <button class="secondary-button" id="admin-refresh-button" type="button">Refresh</button>
+              <button class="secondary-button" id="admin-logout-button" type="button">Log out</button>
+            </div>
+          </div>
+
+          <div class="admin-stats-grid" id="admin-stats-grid"></div>
+
+          <div class="admin-panels-grid">
+            <section class="panel panel-soft">
+              <h3 class="panel-title">Daily activity</h3>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Views</th>
+                      <th>Unique</th>
+                      <th>Study opens</th>
+                      <th>Completions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-daily-body"></tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="panel panel-soft">
+              <h3 class="panel-title">Most viewed case studies</h3>
+              <div class="admin-table-wrap">
+                <table class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Case study</th>
+                      <th>Views</th>
+                      <th>Completions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="admin-studies-body"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p class="site-footer-copy">
+          Funded by the European Union. Views and opinions expressed are however those of
+          the author(s) only and do not necessarily reflect those of the European Union or
+          the European Education and Culture Executive Agency (EACEA). Neither the
+          European Union nor EACEA can be held responsible for them.
+        </p>
+      </footer>
+    </div>
+
+    <script src="./admin.js"></script>
+  </body>
+</html>
