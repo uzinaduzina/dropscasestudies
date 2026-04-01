@@ -38,6 +38,19 @@
     return new Intl.NumberFormat("en-US").format(value || 0);
   }
 
+  function regionName(code) {
+    if (!code || code === "Unknown") {
+      return "Unknown";
+    }
+
+    try {
+      const display = new Intl.DisplayNames(["en"], { type: "region" });
+      return display.of(code) || code;
+    } catch (error) {
+      return code;
+    }
+  }
+
   function createStatCard(label, value) {
     const article = document.createElement("article");
     article.className = "panel panel-soft admin-stat-card";
@@ -46,6 +59,14 @@
       <div class="admin-stat-value">${number(value)}</div>
     `;
     return article;
+  }
+
+  function appendCells(row, values) {
+    values.forEach((value) => {
+      const cell = document.createElement("td");
+      cell.textContent = value;
+      row.appendChild(cell);
+    });
   }
 
   async function loadReport(password) {
@@ -68,6 +89,8 @@
     const statsGrid = document.getElementById("admin-stats-grid");
     const dailyBody = document.getElementById("admin-daily-body");
     const studiesBody = document.getElementById("admin-studies-body");
+    const countriesBody = document.getElementById("admin-countries-body");
+    const referrersBody = document.getElementById("admin-referrers-body");
     const lastUpdated = document.getElementById("admin-last-updated");
 
     statsGrid.innerHTML = "";
@@ -84,13 +107,13 @@
     } else {
       daily.forEach((entry) => {
         const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${entry.date}</td>
-          <td>${number(entry.totalViews)}</td>
-          <td>${number(entry.uniqueClients)}</td>
-          <td>${number(entry.studyViews)}</td>
-          <td>${number(entry.completions)}</td>
-        `;
+        appendCells(row, [
+          String(entry.date || ""),
+          number(entry.totalViews),
+          number(entry.uniqueClients),
+          number(entry.studyViews),
+          number(entry.completions),
+        ]);
         dailyBody.appendChild(row);
       });
     }
@@ -102,12 +125,46 @@
     } else {
       studies.forEach((entry) => {
         const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${entry.title || entry.studyId}</td>
-          <td>${number(entry.views)}</td>
-          <td>${number(entry.completions)}</td>
-        `;
+        appendCells(row, [
+          String(entry.title || entry.studyId || "Unknown"),
+          number(entry.views),
+          number(entry.completions),
+        ]);
         studiesBody.appendChild(row);
+      });
+    }
+
+    countriesBody.innerHTML = "";
+    const countries = Array.isArray(report.countries) ? report.countries : [];
+    if (!countries.length) {
+      countriesBody.innerHTML = '<tr><td colspan="4">No country data recorded yet.</td></tr>';
+    } else {
+      countries.forEach((entry) => {
+        const row = document.createElement("tr");
+        appendCells(row, [
+          regionName(entry.key || entry.label),
+          number(entry.uniqueClients),
+          number(entry.totalViews),
+          number(entry.studyViews),
+        ]);
+        countriesBody.appendChild(row);
+      });
+    }
+
+    referrersBody.innerHTML = "";
+    const referrers = Array.isArray(report.referrers) ? report.referrers : [];
+    if (!referrers.length) {
+      referrersBody.innerHTML = '<tr><td colspan="4">No referrer data recorded yet.</td></tr>';
+    } else {
+      referrers.forEach((entry) => {
+        const row = document.createElement("tr");
+        appendCells(row, [
+          String(entry.label || entry.key || "Unknown"),
+          number(entry.uniqueClients),
+          number(entry.totalViews),
+          number(entry.studyViews),
+        ]);
+        referrersBody.appendChild(row);
       });
     }
   }

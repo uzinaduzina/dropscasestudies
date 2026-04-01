@@ -74,6 +74,63 @@ function createDay(date) {
   };
 }
 
+function createOriginAggregate(label, key = "") {
+  return {
+    key,
+    label,
+    uniqueClients: 0,
+    totalViews: 0,
+    studyViews: 0,
+    completions: 0,
+    lastEventAt: "",
+  };
+}
+
+function getCountryCode(request) {
+  const code =
+    request &&
+    request.cf &&
+    typeof request.cf.country === "string"
+      ? request.cf.country.trim().toUpperCase()
+      : "";
+  return code || "Unknown";
+}
+
+function normalizeReferrer(payload) {
+  const fallback = {
+    key: "direct",
+    label: "Direct / no referrer",
+  };
+  const raw =
+    payload && typeof payload.referrer === "string" ? payload.referrer.trim() : "";
+  if (!raw) {
+    return fallback;
+  }
+
+  try {
+    const referrerUrl = new URL(raw);
+    const currentUrl =
+      payload && typeof payload.href === "string" && payload.href
+        ? new URL(payload.href)
+        : null;
+    const sameHost = currentUrl && referrerUrl.host === currentUrl.host;
+    const label = sameHost
+      ? `${referrerUrl.hostname}${referrerUrl.pathname}`
+      : referrerUrl.hostname;
+
+    return {
+      key: encodeURIComponent(label.toLowerCase()),
+      label,
+    };
+  } catch (error) {
+    const trimmed = raw.slice(0, 140);
+    return {
+      key: encodeURIComponent(trimmed.toLowerCase()),
+      label: trimmed,
+    };
+  }
+}
+
 async function handleTrack(request, env, origin) {
   const payload = await request.json().catch(() => null);
   if (!payload || !payload.type || !payload.clientId) {
@@ -86,6 +143,8 @@ async function handleTrack(request, env, origin) {
   const isView = type === "cards_view" || type === "study_view";
   const isStudyView = type === "study_view";
   const isCompletion = type === "study_complete";
+  const countryCode = getCountryCode(request);
+  const referrer = normalizeReferrer(payload);
 
   if (!isView && !isCompletion) {
     return json({ error: "Unsupported event type." }, 400, origin);
@@ -140,6 +199,70 @@ async function handleTrack(request, env, origin) {
   daySummary.lastEventAt = now;
   await writeJson(env.ANALYTICS_KV, dayKey, daySummary);
 
+  const countryClientKey = `country-client:${countryCode}:${payload.clientId}`;
+  const seenCountryClient = await env.ANALYTICS_KV.get(countryClientKey);
+  if (!seenCountryClient) {
+    await env.ANALYTICS_KV.put(countryClientKey, now);
+  }
+
+  const countryKey = `country:${countryCode}`;
+  const countrySummary = await readJson(
+    env.ANALYTICS_KV,
+    countryKey,
+    createOriginAggregate(countryCode, countryCode)
+  );
+  if (!seenCountryClient) {
+    countrySummary.uniqueClients += 1;
+  }
+  if (isView) {
+    countrySummary.totalViews += 1;
+  }
+  if (isStudyView) {
+    countrySummary.studyViews += 1;
+  }
+  if (isCompletion) {
+    countrySummary.completions += 1;
+  }
+  countrySummary.lastEventAt = now;
+  await writeJson(env.ANALYTICS_KV, countryKey, countrySummary);
+
+  const countryIndex = await readJson(env.ANALYTICS_KV, "country-index", {});
+  countryIndex[countryCode] = countrySummary;
+  await writeJson(env.ANALYTICS_KV, "country-index", countryIndex);
+
+  const referrerClientKey = `referrer-client:${referrer.key}:${payload.clientId}`;
+  const seenReferrerClient = await env.ANALYTICS_KV.get(referrerClientKey);
+  if (!seenReferrerClient) {
+    await env.ANALYTICS_KV.put(referrerClientKey, now);
+  }
+
+  const referrerKey = `referrer:${referrer.key}`;
+  const referrerSummary = await readJson(
+    env.ANALYTICS_KV,
+    referrerKey,
+    createOriginAggregate(referrer.label, referrer.key)
+  );
+  referrerSummary.key = referrer.key;
+  referrerSummary.label = referrer.label;
+  if (!seenReferrerClient) {
+    referrerSummary.uniqueClients += 1;
+  }
+  if (isView) {
+    referrerSummary.totalViews += 1;
+  }
+  if (isStudyView) {
+    referrerSummary.studyViews += 1;
+  }
+  if (isCompletion) {
+    referrerSummary.completions += 1;
+  }
+  referrerSummary.lastEventAt = now;
+  await writeJson(env.ANALYTICS_KV, referrerKey, referrerSummary);
+
+  const referrerIndex = await readJson(env.ANALYTICS_KV, "referrer-index", {});
+  referrerIndex[referrer.key] = referrerSummary;
+  await writeJson(env.ANALYTICS_KV, "referrer-index", referrerIndex);
+
   if (payload.studyId) {
     const studyKey = `study:${payload.studyId}`;
     const studySummary = await readJson(env.ANALYTICS_KV, studyKey, {
@@ -188,11 +311,14 @@ async function handleReport(request, env, origin) {
 
   const summary = await readJson(env.ANALYTICS_KV, "summary", createSummary());
   const todayKey = `day:${new Date().toISOString().slice(0, 10)}`;
-  const [todaySummary, dayKeys, studyKeys, studyIndex] = await Promise.all([
+  const [todaySummary, dayKeys, studyKeys, studyIndex, countryIndex, referrerIndex] =
+    await Promise.all([
     env.ANALYTICS_KV.get(todayKey, "json"),
     listAll(env.ANALYTICS_KV, "day:"),
     listAll(env.ANALYTICS_KV, "study:"),
     env.ANALYTICS_KV.get("study-index", "json"),
+    env.ANALYTICS_KV.get("country-index", "json"),
+    env.ANALYTICS_KV.get("referrer-index", "json"),
   ]);
 
   const daySet = new Set(dayKeys);
@@ -233,7 +359,31 @@ async function handleReport(request, env, origin) {
     )
     .slice(0, 30);
 
-  return json({ summary, days, studies }, 200, origin);
+  const countries = (countryIndex && typeof countryIndex === "object"
+    ? Object.values(countryIndex)
+    : []
+  )
+    .filter(Boolean)
+    .sort(
+      (a, b) =>
+        (b.uniqueClients || 0) - (a.uniqueClients || 0) ||
+        (b.totalViews || 0) - (a.totalViews || 0)
+    )
+    .slice(0, 30);
+
+  const referrers = (referrerIndex && typeof referrerIndex === "object"
+    ? Object.values(referrerIndex)
+    : []
+  )
+    .filter(Boolean)
+    .sort(
+      (a, b) =>
+        (b.uniqueClients || 0) - (a.uniqueClients || 0) ||
+        (b.totalViews || 0) - (a.totalViews || 0)
+    )
+    .slice(0, 30);
+
+  return json({ summary, days, studies, countries, referrers }, 200, origin);
 }
 
 export default {

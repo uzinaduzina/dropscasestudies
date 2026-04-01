@@ -193,6 +193,7 @@
       site: "cs",
       path: window.location.pathname,
       href: window.location.href,
+      referrer: window.document.referrer || "",
       userAgent: window.navigator.userAgent,
       timestamp: new Date().toISOString(),
       ...payload,
