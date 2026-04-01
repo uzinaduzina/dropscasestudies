@@ -535,7 +535,7 @@ select {
   margin-top: auto;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 12px;
 }
 
@@ -543,16 +543,33 @@ select {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: var(--teal);
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--navy), var(--teal));
+  color: #ffffff;
+  font-size: 0.76rem;
   font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  box-shadow: 0 12px 20px rgba(35, 37, 96, 0.18);
+  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
 }
 
 .study-card.is-completed .study-link {
-  color: rgba(78, 99, 135, 0.88);
+  background: rgba(93, 99, 145, 0.12);
+  color: rgba(93, 99, 145, 0.95);
+  box-shadow: none;
 }
 
 .study-link-arrow {
   transition: transform 180ms ease;
+}
+
+.study-card:hover .study-link,
+.study-card:focus-visible .study-link {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 24px rgba(35, 37, 96, 0.2);
 }
 
 .study-card:hover .study-link-arrow,
@@ -711,9 +728,12 @@ select {
   min-height: 44px;
   padding: 0 18px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.82);
+  background: rgba(255, 255, 255, 0.92);
   border: 1px solid var(--line);
   font-weight: 800;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   box-shadow: var(--shadow-soft);
   white-space: nowrap;
 }
@@ -993,12 +1013,16 @@ select {
 
 .primary-button {
   width: 100%;
-  min-height: 52px;
+  min-height: 48px;
   margin-top: 16px;
   border: 0;
-  border-radius: 14px;
+  padding: 0 22px;
+  border-radius: 999px;
   color: #ffffff;
   font-weight: 800;
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   background: linear-gradient(135deg, var(--navy), var(--teal));
   cursor: pointer;
   transition: transform 180ms ease, opacity 180ms ease, box-shadow 180ms ease;
@@ -1008,16 +1032,19 @@ select {
 .secondary-button {
   display: inline-flex;
   width: 100%;
-  min-height: 48px;
+  min-height: 46px;
   margin-top: 14px;
   align-items: center;
   justify-content: center;
-  padding: 0 18px;
+  padding: 0 20px;
   border: 1px solid rgba(15, 146, 131, 0.24);
-  border-radius: 14px;
-  background: rgba(0, 168, 157, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
   color: var(--navy);
+  font-size: 0.82rem;
   font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
 }
 
