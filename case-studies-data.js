@@ -20,7 +20,7 @@
       languageLabel: "Language",
       noResults: "No case studies match this category yet.",
       readCaseStudy: "Read case study",
-      backToCards: "Back to all cards",
+      backToCards: "Back to studies",
       availableLanguages: "Available languages",
       completionTitle: "Reading progress",
       completionCopy:
@@ -59,7 +59,7 @@
       languageLabel: "Limbă",
       noResults: "Nu există încă studii de caz pentru această categorie.",
       readCaseStudy: "Citește studiul de caz",
-      backToCards: "Înapoi la toate cardurile",
+      backToCards: "Înapoi la studii",
       availableLanguages: "Limbi disponibile",
       completionTitle: "Progres la citire",
       completionCopy:
@@ -98,7 +98,7 @@
       languageLabel: "Lingua",
       noResults: "Nessun case study corrisponde ancora a questa categoria.",
       readCaseStudy: "Leggi il case study",
-      backToCards: "Torna a tutte le card",
+      backToCards: "Torna agli studi",
       availableLanguages: "Lingue disponibili",
       completionTitle: "Progresso di lettura",
       completionCopy:
@@ -137,7 +137,7 @@
       languageLabel: "Idioma",
       noResults: "Todavía no hay estudios de caso para esta categoría.",
       readCaseStudy: "Leer estudio de caso",
-      backToCards: "Volver a todas las tarjetas",
+      backToCards: "Volver a los estudios",
       availableLanguages: "Idiomas disponibles",
       completionTitle: "Progreso de lectura",
       completionCopy:
@@ -176,7 +176,7 @@
       languageLabel: "Γλώσσα",
       noResults: "Δεν υπάρχουν ακόμη case studies για αυτή την κατηγορία.",
       readCaseStudy: "Διάβασε τη μελέτη",
-      backToCards: "Επιστροφή σε όλες τις κάρτες",
+      backToCards: "Επιστροφή στις μελέτες",
       availableLanguages: "Διαθέσιμες γλώσσες",
       completionTitle: "Πρόοδος ανάγνωσης",
       completionCopy:
@@ -215,7 +215,7 @@
       languageLabel: "Jezik",
       noResults: "Još nema studija slučaja za ovu kategoriju.",
       readCaseStudy: "Otvori studiju slučaja",
-      backToCards: "Natrag na sve kartice",
+      backToCards: "Natrag na studije",
       availableLanguages: "Dostupni jezici",
       completionTitle: "Napredak čitanja",
       completionCopy:

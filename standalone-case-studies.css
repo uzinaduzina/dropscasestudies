@@ -80,6 +80,15 @@ select {
   align-items: flex-start;
   justify-content: space-between;
   margin-bottom: 28px;
+  position: sticky;
+  top: 14px;
+  z-index: 12;
+  padding: 16px 20px;
+  border: 1px solid rgba(35, 37, 96, 0.08);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.84);
+  box-shadow: var(--shadow-soft);
+  backdrop-filter: blur(14px);
 }
 
 .topbar-detail {
@@ -180,6 +189,7 @@ select {
   line-height: 1.08;
   font-weight: 900;
   letter-spacing: -0.03em;
+  text-transform: uppercase;
 }
 
 .eyebrow {
@@ -218,14 +228,22 @@ select {
 .toolbar {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
 }
 
 .select-block {
   display: grid;
   gap: 8px;
   min-width: 210px;
-  font-size: 0.93rem;
+  font-size: 0.85rem;
   color: var(--ink-soft);
+}
+
+.select-block span {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .select-block select {
@@ -238,6 +256,7 @@ select {
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 248, 250, 0.98));
   box-shadow: 0 10px 24px rgba(35, 37, 96, 0.04);
+  font-weight: 700;
 }
 
 .content-stack {
@@ -690,12 +709,13 @@ select {
   align-items: center;
   gap: 10px;
   min-height: 44px;
-  padding: 0 14px;
+  padding: 0 18px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.82);
   border: 1px solid var(--line);
   font-weight: 800;
   box-shadow: var(--shadow-soft);
+  white-space: nowrap;
 }
 
 .detail-hero {
@@ -812,7 +832,7 @@ select {
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.82);
   color: var(--ink-soft);
-  padding: 10px 14px;
+  padding: 11px 16px;
   font-weight: 700;
   cursor: pointer;
   transition: all 180ms ease;
